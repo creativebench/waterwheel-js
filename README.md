@@ -60,7 +60,7 @@ Waterwheel when instantiated accepts three arguments,
 
 ### Populate `waterwheel` resources
 
-**This must be done before any subsequent API calls**. Without this call, only the [Entity Query](#entity-query) functionality will be available.
+If you are supplying a resources object when `waterwheel` is instantiated, you do not need to use `.populateResources()` to fetch the resources prior to making any subsequent API calls.
 
 ```javascript
 waterwheel.populateResources()
@@ -259,3 +259,74 @@ waterwheel.api.node.page.get(1, 'hal_json')
   - `includedFields`: Optionally provide a single field as a `string`, or an `array` of `strings` to filter the embedded request by.
 
 When requesting embedded resources duplicates are removed to prevent extra HTTP requests. An array is returned with your original response and any embedded resources. If any of the subsequent requests fail, the promise is rejected.
+
+### JSON API
+
+`waterwheel` contains provisional support for requesting data using the `json:api` format. Currently only `GET` requests are supported; this simplifies the instantiation of `waterwheel`.
+
+```javascript
+const Waterwheel = require('waterwheel');
+const waterwheel = new Waterwheel('http://foo.dev', null, {});
+```
+
+The `jsonapi.request()` method accepts 3 arguments,
+  - `resource`: The `bundle` and the `entity` you want to request.
+  - `params`: Any arguments that your request requires. These are translated to query string arguments prior to sending the request.
+  - `id`: The UUID of a single entity to fetch. This can be overloaded to include the name of a related entity.
+
+The following examples outline some of the basic features of using `JSON API`.
+
+#### Collections/Lists
+
+```javascript
+waterwheel.jsonapi.request('node/article', {})
+.then(res => {
+  // res
+});
+```
+
+#### Request A Resource
+
+```javascript
+waterwheel.jsonapi.request('node/article', {}, 'cc1b95c7-1758-4833-89f2-7053ae8e7906')
+.then(res => {
+  // res
+});
+```
+
+#### Request A Related Resource
+
+```javascript
+waterwheel.jsonapi.request('node/article', {}, 'cc1b95c7-1758-4833-89f2-7053ae8e7906/uid')
+.then(res => {
+  // res
+});
+```
+
+#### Basic Filter
+
+```javascript
+waterwheel.jsonapi.request('node/article', {
+  filter: {
+    uuid: {
+      value: '563196f5-4432-4964-9aeb-e4d326cb1330'
+    }
+  }
+})
+.then(res => {
+  // res
+});
+```
+
+#### Filter With Operators
+
+```javascript
+waterwheel.jsonapi.request('node/article', {
+  filter: {
+    created: {value: '1469001416', operator: '='}
+  }
+})
+.then(res => {
+  // res
+});
+```
